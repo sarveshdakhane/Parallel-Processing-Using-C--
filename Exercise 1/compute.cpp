@@ -35,8 +35,6 @@ int main(int argc, char **argv)
     b = f2(a);
 	c = f3(a);
 	a = f4(a);
-
-	
 	res = f5(b) + f7(a) + f6(b,c);
 
 	*/
