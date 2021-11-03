@@ -38,10 +38,12 @@ int main(int argc, char **argv)
 
 	
 	res = f5(b) + f7(a) + f6(b,c);
+
+	*/
+
 	auto end = std::chrono::high_resolution_clock::now();
 	
-	cout << "Result = " << std::setprecision(18) << res << endl;
+	//cout << "Result = " << std::setprecision(18) << res << endl;
 	cout << "Time: " << (end - start)/std::chrono::milliseconds(1) << "ms" << endl;
-	*/
 	return 0;
 }
