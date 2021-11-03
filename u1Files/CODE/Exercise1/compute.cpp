@@ -13,6 +13,7 @@ extern double f7(double a);
 
 int main(int argc, char **argv)
 {
+	cout<<"Hello Ji...";
 	double a, b, c, res;
 	auto start = std::chrono::high_resolution_clock::now();
 
