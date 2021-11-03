@@ -1,9 +1,6 @@
 #include <iostream>
-
 using namespace std;
-
-int main()
-{
-    count<<"helloWorld";
-    return 0 ;
+int main () {
+    cout << "hey" << endl;
+    return 0;
 }
