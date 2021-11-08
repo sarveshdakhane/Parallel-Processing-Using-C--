@@ -25,7 +25,7 @@ double f2(double a)
 	cout<<"Called F2 "<<endl;
 
 	double Oddsum=0;
-	for (int i=0; i<=5071900000; ++i)
+	for (int i=0; i<=507190000; ++i)
 	{
 		if((i&1)==0)
 		{
@@ -40,7 +40,7 @@ double f3(double a)
 {
 	cout<<"Called F3 "<<endl;
 	double Evensum=0;
-	for (int i=0; i<=200700000; ++i)
+	for (int i=0; i<=20070000; ++i)
 	{
 		if((i&1)==0)
 		{
@@ -79,7 +79,7 @@ int main(int argc, char **argv)
 	double a, a1,b, c, res;
 	auto start = std::chrono::high_resolution_clock::now();
 	
-	/*
+	///*
 
     a = f1();
 	auto Future_f2=std::async(f2,a);
@@ -92,7 +92,7 @@ int main(int argc, char **argv)
 	auto Future_f7 = std::async(f7,a1);
 	auto Future_f6 = std::async(f6,b,c);
     res = Future_f5.get() + Future_f7.get() + Future_f6.get();
-	*/
+	//*/
 
    /*
     a = f1();
@@ -106,13 +106,13 @@ int main(int argc, char **argv)
 	*/
 	
     
-	///*
+	/*
 	a = f1();
     b = f2(a);	
 	c = f3(a);
 	a = f4(a);
 	res = f5(b) + f7(a) + f6(b,c);
-	//*/
+	*/
     
 	auto end = std::chrono::high_resolution_clock::now();
 	
