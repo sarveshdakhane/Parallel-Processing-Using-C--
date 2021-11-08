@@ -4,28 +4,39 @@
 #include <chrono>
 #include <thread>
 #include <future>
+#include <mutex>
+#include <condition_variable>
 
 using namespace std;
 
-extern double f1();
-extern double f2(double a);
-extern double f3(double a);
-extern double f4(double a);
-extern double f5(double a);
-extern double f6(double a, double b);
-extern double f7(double a);
+typedef unsigned long long ull;
+std::mutex m;
+std::mutex m1;
+std::mutex m2;
+std::condition_variable cv;
+std::condition_variable cv1;
+std::condition_variable cv2;
+bool ready = false;
 
-double f1()
+extern ull f1();
+extern ull f2(ull a);
+extern ull f3(ull a);
+extern ull f4(ull a);
+extern ull f5(ull b);
+extern ull f6(ull b, ull c);
+extern ull f7(ull a);
+
+ull f1()
 {
 	cout<<"Called F1 "<<endl;
-	return 9007190000;
+	return 1900000000;
 }
-double f2(double a)
+ull f2(ull a)
 {
+	std::unique_lock<std::mutex> lck(m);
 	cout<<"Called F2 "<<endl;
-
 	double Oddsum=0;
-	for (int i=0; i<=507190000; ++i)
+	for (ull i=0; i<=1900000000; ++i)
 	{
 		if((i&1)==0)
 		{
@@ -33,40 +44,53 @@ double f2(double a)
 
 		}
 	}
-	//b= a * Oddsum;
 	return a * Oddsum;
+	cv.notify_all();
 }
-double f3(double a)
+ull f3(ull a)
 {
+	std::unique_lock<std::mutex> lck(m2);
 	cout<<"Called F3 "<<endl;
-	double Evensum=0;
-	for (int i=0; i<=20070000; ++i)
+	ull Evensum=0;
+	for (ull i=0; i<=1900000000; ++i)
 	{
 		if((i&1)==0)
 		{
 			Evensum +=i;
      	}
 	}
+	
 	return a * Evensum;
+	cv2.notify_all();
+
 }
-double f4(double a)
+ull f4(ull a)
 {
+	std::unique_lock<std::mutex> lck(m1);
 	cout<<"Called F4"<<endl ;
-	//a1=a+9009925;
 	return a+9009925000;
+	cv1.notify_all();
 }
-double f5(double a)
+ull f5(ull b)
 {
+    std::unique_lock<mutex> lck (m);
+    cv.wait(lck , [&]{ if (b > 0 ){ return true ;} else { return false ;}});
 	cout<<"Called F5"<<endl ;
-	return a*19222540000;
+	return b*19222540000;
 }
-double f6(double a,double b)
+ull f6(ull b,ull c)
 {
+	std::unique_lock<mutex> lck1 (m);
+	std::unique_lock<mutex> lck1 (m2);
+	cv.wait(lck1, [&]{ if (b > 0){ return true ;} else { return false ;}});
+    cv2.wait(lck1, [&]{ if (c> 0){ return true ;} else { return false ;}});
 	cout<<"Called F6"<<endl ;
-	return a*b;
+	return b*c;
 }
-double f7(double a)
+ull f7(ull a)
 {
+	std::unique_lock<mutex> lck2 (m1);
+    cv1.wait(lck2 , [&]{ if (a > 0 ){ return true ;} else { return false ;}});
 	cout<<"Called F7"<<endl;
 	return a +19007193425;
 }
@@ -76,43 +100,30 @@ int main(int argc, char **argv)
 {
 	cout<<"Hello Ji..."<<endl;
 	
-	double a, a1,b, c, res;
+	ull a, a1,b, c, res;
 	auto start = std::chrono::high_resolution_clock::now();
 	
-	///*
-
+	/*
     a = f1();
 	auto Future_f2=std::async(f2,a);
 	auto Future_f3=std::async(f3,a);
-	b=Future_f2.get();
+	auto Future_f4=std::async(f4,a);
+	b=Future_f2.get(); 
 	c=Future_f3.get();	
-    auto Future_f4=std::async(f4,a);
     a1 = Future_f4.get(); 
-    auto Future_f5 = std::async(f5,b) ;
-	auto Future_f7 = std::async(f7,a1);
+    auto Future_f5 = std::async(f5,b); 
+	auto Future_f7 = std::async(f7,a1); 
 	auto Future_f6 = std::async(f6,b,c);
     res = Future_f5.get() + Future_f7.get() + Future_f6.get();
-	//*/
-
-   /*
-    a = f1();
-	std::thread t2(f2,a);
-	std::thread t3(f3,a);
-    std::thread t4(f4,a);
-	t2.join();
-	t3.join();
-	t4.join();
-    res = f5(b) + f7(a) + f6(b,c);
 	*/
+
 	
-    
-	/*
 	a = f1();
     b = f2(a);	
 	c = f3(a);
 	a = f4(a);
 	res = f5(b) + f7(a) + f6(b,c);
-	*/
+	
     
 	auto end = std::chrono::high_resolution_clock::now();
 	
