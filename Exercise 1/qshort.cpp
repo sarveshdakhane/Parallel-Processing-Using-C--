@@ -5,8 +5,48 @@
 #include <thread>
 #include <future>
 #include <random>
+#include <omp.h>
 
 using namespace std;
+
+extern void quickSort(int a[], int start, int end);
+extern void RunParallel(int a, int i,int start,int end);
+
+void RunParallel(int a[], int i,int start,int end)
+{
+
+    
+       #pragma omp parallel sections
+            {
+        #pragma omp section
+                {
+                    if (start < i - 1)
+                    {
+                        quickSort(a, start, i - 1);
+                    }
+                }
+        #pragma omp section
+                {
+                    if (i + 1 < end)
+                    {
+                        quickSort(a, i + 1, end);
+                    }
+                }
+            }
+
+}
+void Sequencially(int a[], int i,int start,int end)
+{
+
+     if (start < i - 1)
+                    {
+                        quickSort(a, start, i - 1);
+                    }
+                    if (i + 1 < end)
+                    {
+                        quickSort(a, i + 1, end);
+                    }
+}
 
 void swap(int *f, int *s)
 {
@@ -21,69 +61,62 @@ void quickSort(int a[], int start, int end)
     while (i <= j)
     {
         while (a[i] < a[pivot])
-        {i++;}
+        {
+            i++;
+        }
         while (j >= start && a[j] >= a[pivot])
-        {j--;}
+        {
+            j--;
+        }
         if (i <= j)
-        {        
+        {
             swap(&a[i], &a[j]);
         }
     }
-    swap(&a[i], &a[pivot]);
-    if(start < i-1)
-    {
+     swap(&a[i], &a[pivot]);
 
-        quickSort(a,start,i-1);
-    }
-    if(i+1<end)
-    {
-        quickSort(a,i+1,end);
-    }
+    //RunParallel(a,i,start,end);
+    //cout<<"Parallel";
+
+    Sequencially(a,i,start,end);
+    //cout<<"Sequential";
+
 }
 
 void printArray(int arr[], int size)
 {
-    int i;
-    for (i = 0; i < size; i++)
+    for (int i = 0; i < size; i++)
     {
-        cout << " "<<arr[i];
+        cout << " " << arr[i];
     }
     cout << endl;
 }
-
-
-
 void initialize(int *a, int n)
 {
-    for(int i=0;i<n;i++)
+    for (int i = 0; i < n; i++)
     {
-      cout<<"Elements no "<<i+1<<"::"<<a[i]<<endl;
+        a[i] = rand() % 100;
     }
 }
-
-
 int main()
-{   try{
-    int randomNumber = rand();
-    cout << "Run Started " << randomNumber % 100;
-    int ArrayLength= 10000000;
-    int a[ArrayLength];
-    for(int i=0;i<ArrayLength;i++)
+{
+    try
     {
-       a[i]= rand() % 10;
+        cout << "Run Started " << endl;
+        int ArrayLength = 1000000;
+        int *a = new int[ArrayLength];
+        initialize(a, ArrayLength);
+        cout << "Array Genereted: " << endl;
+        auto start = std::chrono::high_resolution_clock::now();
+        quickSort(a, 0, ArrayLength - 1);
+        auto end = std::chrono::high_resolution_clock::now();
+        cout << "Time: " << (end - start) / std::chrono::milliseconds(1) << "ms" << endl;
+        cout << "Sorted array:";
+       // printArray(a, ArrayLength);
     }
-    //initialize(&a[ArrayLength], ArrayLength);
-    cout << "Array Genereted: " ;
-    auto start = std::chrono::high_resolution_clock::now();
-    quickSort(a, 0, ArrayLength - 1);
-    auto end = std::chrono::high_resolution_clock::now();
-	cout << "Time: " << (end - start)/std::chrono::milliseconds(1) << "ms" << endl;
-    cout << "Sorted array:" ;
-    printArray(a, ArrayLength);
-    }
-    catch(std::exception& e)
+    catch (std::exception &e)
     {
-            std::cout << e.what();
+        std::cout << e.what();
     }
     return 0;
 }
