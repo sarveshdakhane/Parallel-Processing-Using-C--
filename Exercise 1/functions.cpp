@@ -1,6 +1,9 @@
+#include "functions.h"
 #include <iostream>
 #include <math.h>
 #include <chrono>
+#include <windows.h>
+
 
 /* ==================================================
    This file should / must not be changed !!!
@@ -19,7 +22,6 @@ static void doCompute(std::chrono::duration<float> duration)
 			glob += sin(i/10000.0);
 	}
 }
-
 /*
 ** Compute intensive functions ...
 */

@@ -6,6 +6,7 @@
 #include <future>
 #include <mutex>
 #include <condition_variable>
+#include "functions.h"
 
 using namespace std;
 
@@ -18,6 +19,8 @@ std::condition_variable cv1;
 std::condition_variable cv2;
 bool ready = false;
 
+
+/*
 extern ull f1();
 extern ull f2(ull a);
 extern ull f3(ull a);
@@ -25,7 +28,9 @@ extern ull f4(ull a);
 extern ull f5(ull b);
 extern ull f6(ull b, ull c);
 extern ull f7(ull a);
+*/
 
+/*
 ull f1()
 {
 	//cout<<"Called F1 "<<endl;
@@ -145,10 +150,14 @@ ull f7(ull a1)
 	return result;
 }
 
+
+*/
+
+
 int main(int argc, char **argv)
 {
 	cout << "Runnig..." << endl;
-	ull a, a1, b, c, res;
+	double a, a1, b, c, res;
 	auto start = std::chrono::high_resolution_clock::now();
 
 	///*
