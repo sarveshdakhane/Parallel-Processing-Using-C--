@@ -165,12 +165,17 @@ int main(int argc, char **argv)
 	auto Future_f2=std::async(f2,a);
 	auto Future_f3=std::async(f3,a);
 	auto Future_f4=std::async(f4,a);
+
+    
+    std::unique_lock<std::mutex> lck(m);
     b=Future_f2.get(); 
 	c=Future_f3.get();	
     a1=Future_f4.get(); 
+
 	auto Future_f5 = std::async(f5,b); 
 	auto Future_f7 = std::async(f7,a1); 	
 	auto Future_f6 = std::async(f6,b,c);
+
     res = Future_f5.get() + Future_f7.get() + Future_f6.get();
 	//*/
 
