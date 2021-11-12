@@ -22,7 +22,7 @@ int main(int argc, char **argv)
 	double a, a1, b, c, res;
 	auto start = std::chrono::high_resolution_clock::now();
 
-    ///*
+    ///* 
     a = f1();
 
     std::thread F2{[&](){ 
