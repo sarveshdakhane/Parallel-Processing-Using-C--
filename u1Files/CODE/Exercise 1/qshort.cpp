@@ -48,7 +48,7 @@ void quickSort(int a[], int start, int end)
         }
         swap(&a[i], &a[pivot]);
 
-       // /*
+     /*
         if (start < i - 1)
         {
             if ((i - 1) - start > MINSIZE)
@@ -70,8 +70,8 @@ void quickSort(int a[], int start, int end)
 #pragma omp section { quickSort(a, i + 1, end); }
             }
         }
-      //  */
-    /*
+     */
+    ///*
     if(start<i-1)
     {      
     quickSort(a, start, i - 1); 
@@ -81,7 +81,18 @@ void quickSort(int a[], int start, int end)
     {
     quickSort(a, i + 1, end);
     }
-  */
+     //*/
+
+    if(start<i-1)
+    {      
+    std::thread t1 (quickSort,a, start, i - 1); 
+    }
+    t1.join();
+    if(i+1>end)
+    {
+    std::thread t2 (quickSort,a, i + 1, end);
+    }
+    t1.join();
     }
     catch (std::exception &e)
     {
