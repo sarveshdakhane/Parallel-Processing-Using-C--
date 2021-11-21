@@ -12,8 +12,12 @@
 #include <iomanip>
 #include <stdlib.h>
 #include <chrono>
+#include <thread>
+#include <mutex>
 
-
+extern const int MINSIZE = 1000000;
+std::recursive_mutex m1;
+std::recursive_mutex m2;
 
 /*
 ** Quicksort: sort the elements 'lo' ... 'hi' in array 'a'.
@@ -22,7 +26,6 @@ void quicksort(int *a, int lo, int hi)
 {
 	int i, j;
 	int pivot;
-
 	if (lo >= hi) {
 		/*
 		** Sub-array is empty or has only one element,
@@ -62,12 +65,27 @@ void quicksort(int *a, int lo, int hi)
 			j--;
 		}
 	}
+
 	
 	/* Recursion */
-	quicksort(a, lo, j);
-	quicksort(a, i, hi);
+	//quicksort(a, lo, j);
+	//quicksort(a, i, hi);
+  
+	if(hi-i+1>MINSIZE)
+	{
+	std::thread left(quicksort,a, i, hi);
+	std::thread right(quicksort,a, lo, j);
+	left.join();
+	right.join();
+	}
+	else
+	{
+		quicksort(a, lo, j);
+		quicksort(a, i, hi);
+	}
+		
 }
-
+	
 /*
 ** Initialize an array 'a' of length 'n' with
 ** random numbers.
