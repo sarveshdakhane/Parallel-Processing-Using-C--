@@ -1,0 +1,36 @@
+Function calling structure
+
+
+main():
+    funct5()
+        funct6()
+            funct8()
+            gettimeofday(timeval*, timezone*)  
+        funct8()
+            funct2()
+                funct3()
+                    funct1()
+                    gettimeofday(timeval*, timezone*)
+                funct1()
+                    gettimeofday(timeval*, timezone*)
+            funct7()
+                 gettimeofday(timeval*, timezone*)
+            gettimeofday(timeval*, timezone*)
+        funct4()
+            funct2()
+            funct3()
+            gettimeofday(timeval*, timezone*) 
+        gettimeofday(timeval*, timezone*)
+    gettimeofday(timeval*, timezone*) 
+  
+             
+_mcount_private
+                
+               
+                
+
+
+
+function 6 -> function 8
+
+function 4 ->
