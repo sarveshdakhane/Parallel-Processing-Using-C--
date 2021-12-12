@@ -8,6 +8,9 @@
 
 /* Do not change the following declarations! */
 
+
+#include <omp.h>
+
 constexpr int N = 1000;
 constexpr int M = 100;
 
@@ -16,11 +19,14 @@ double m[M][M];
 int map[N];
 
 
+
 /* Start here ... */
 
 void loop1()
-{
-	for (int i=0; i<N; i++) {
+{  
+	
+    #pragma omp parallel for
+	for (int i=0; i<N; i++){
 		a[i] = b[i] + c[0];
 		b[i] = a[i] - c[i];
 	}
@@ -28,14 +34,20 @@ void loop1()
 
 void loop2()
 {
-	for (int i=1; i<N; i++) {
-		a[i] = a[i-1];
+
+   #pragma omp parallel for
+   for (int i=1; i<N; i++){
+	   a[i] = a[i-1];
+   }
+   #pragma omp parallel for
+   for (int i=1; i<N; i++){
 		b[i] = a[i] + c[i];
-	}
+   }
 }
 
 void loop3()
 {
+	
 	for (int i=1; i<N-2; i++) {
 		a[i] = b[i] + a[i+2];
 		c[i] = b[i-1];

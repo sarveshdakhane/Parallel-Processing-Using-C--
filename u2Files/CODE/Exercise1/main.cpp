@@ -153,7 +153,7 @@ void sloop8()
 
 
 int main(int argc, char *argv[])
-{
+{   
 	init1(); sloop1(); loop1(); check1("loop1");
 	init1(); sloop2(); loop2(); check1("loop2");
 	init1(); sloop3(); loop3(); check1("loop3");
