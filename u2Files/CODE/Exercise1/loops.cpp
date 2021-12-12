@@ -21,7 +21,7 @@ int map[N];
 
 
 /* Start here ... */
-
+// No depedency
 void loop1()
 {  
 	
