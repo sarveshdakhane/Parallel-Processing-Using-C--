@@ -34,44 +34,43 @@ void loop1()
 void loop2()
 {
 
-   //#pragma omp parallel for
    for (int i=1; i<N; i++){
 	   a[i] = a[i-1];
    }
+
    #pragma omp parallel for
    for (int i=1; i<N; i++){
 		b[i] = a[i] + c[i];
    }
+
 }
 // There is a Anti-Depedency
 void loop3()
 {
-	
 	double a2[N];
+
 	#pragma omp parallel for
-	for (int i=1; i<N-2; i++) {
-        a2[i] = a[i];
+	for (int i=1; i<N; i++) {
+		a2[i] = a[i];
 	}
+
     #pragma omp parallel for
 	for (int i=1; i<N-2; i++) {
-		a[i] = b[i] + a[i+2];
-		
+		a[i] = b[i] + a2[i+2];
+		c[i] = b[i-1];
 	}
-
-   for (int i=1; i<N-2; i++) {
-	c[i] = b[i-1];
-   }
 }
-
+// This is output dependencys
 void loop4()
-{
-	for (int i=0; i<N; i++) {
+{ 
+	for (int i=0; i<N; i++) {     
 		a[i] = a[i] - 0.9 * a[N/2];
 	}
 }
 
 void loop5()
-{
+{  
+    #pragma omp parallel for schedule(runtime)
 	for (int i=0; i<N/2; i++) {
 		a[i+N/3] = (c[i] - a[i])/2;
 	}
@@ -79,6 +78,7 @@ void loop5()
 
 void loop6()
 {
+	#pragma omp parallel for 
 	for (int i=0; i<N/3; i++) {
 		a[i+N/3] = (c[i] - a[i])/2;
 	}
