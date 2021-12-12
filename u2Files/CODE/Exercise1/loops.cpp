@@ -21,21 +21,20 @@ int map[N];
 
 
 /* Start here ... */
-
+// No depedency
 void loop1()
-{  
-	
+{  	
     #pragma omp parallel for
 	for (int i=0; i<N; i++){
 		a[i] = b[i] + c[0];
 		b[i] = a[i] - c[i];
 	}
 }
-
+//There is a True Dependence
 void loop2()
 {
 
-   #pragma omp parallel for
+   //#pragma omp parallel for
    for (int i=1; i<N; i++){
 	   a[i] = a[i-1];
    }
@@ -44,14 +43,24 @@ void loop2()
 		b[i] = a[i] + c[i];
    }
 }
-
+// There is a Anti-Depedency
 void loop3()
 {
 	
+	double a2[N];
+	#pragma omp parallel for
+	for (int i=1; i<N-2; i++) {
+        a2[i] = a[i];
+	}
+    #pragma omp parallel for
 	for (int i=1; i<N-2; i++) {
 		a[i] = b[i] + a[i+2];
-		c[i] = b[i-1];
+		
 	}
+
+   for (int i=1; i<N-2; i++) {
+	c[i] = b[i-1];
+   }
 }
 
 void loop4()
