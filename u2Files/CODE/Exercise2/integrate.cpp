@@ -9,9 +9,7 @@
 #include <omp.h>
 #include <chrono>
 
-
 constexpr double PI = 3.1415926535897932384626433832795029;
-
 
 /*
 ** This function is integrated over the interval [0, 1]. The value of the
@@ -21,15 +19,14 @@ constexpr double PI = 3.1415926535897932384626433832795029;
 ** make the problem more practical: in the case of numerical integration, the
 ** main effort is usually the calculation of the function, not the summation.
 */
-double f(double a) 
+double f(double a)
 {
-    double res = 0;
-    int i;
-    for (i=0; i<1000; i++)
-        res += 0.004/(1.0+(a*a));
-    return res;
+	double res = 0;
+	int i;
+	for (i = 0; i < 1000; i++)
+		res += 0.004 / (1.0 + (a * a));
+	return res;
 }
-
 
 /*
 ** Sequential integration for purposes of comparison.
@@ -39,15 +36,16 @@ double Serial_Integration(int n)
 {
 	int i;
 	double h, sum, x;
-    
-	h = 1.0/(double)n; 
+
+	h = 1.0 / (double)n;
 	sum = 0.0;
-    
-	for (i=1; i<=n; i++) {
+
+	for (i = 1; i <= n; i++)
+	{
 		x = h * ((double)i - 0.5);
 		sum += f(x);
 	}
-    
+
 	return h * sum;
 }
 
@@ -60,16 +58,18 @@ double Parallel_Integration1(int n)
 {
 	int i;
 	double h, sum, x;
-    
-	h = 1.0/(double)n; 
+
+	h = 1.0 / (double)n;
 	sum = 0.0;
 
-	for (i=1; i<=n; i++) {
+    #pragma omp parallel for reduction(+: sum) private(i, x)
+	for (i = 1; i <= n; i++)
+	{
 		x = h * ((double)i - 0.5);
 		sum += f(x);
 	}
-	
-	return h * sum;   
+
+	return h * sum;
 }
 
 /*
@@ -83,16 +83,20 @@ double Parallel_Integration2(int n)
 {
 	int i;
 	double h, sum, x;
-    
-	h = 1.0/(double)n; 
+
+	h = 1.0 / (double)n;
 	sum = 0.0;
 
-	for (i=1; i<=n; i++) {
-		x = h * ((double)i - 0.5);
-		sum += f(x);
-	}
-	
-	return h * sum;   
+        #pragma omp parallel for schedule(static,1) private(i,x) ordered
+		for (i = 1; i <= n; i++)
+		{
+			x = h * ((double)i - 0.5);
+			x = f(x);
+            #pragma omp ordered
+			sum += x;
+		}
+
+	return h * sum;
 }
 
 /*
@@ -113,16 +117,24 @@ double Parallel_Integration3(int n)
 {
 	int i;
 	double h, sum, x;
-    
-	h = 1.0/(double)n; 
-	sum = 0.0;
 
-	for (i=1; i<=n; i++) {
+	h = 1.0 / (double)n;
+	sum = 0.0;
+	double *x_array = new double[n];
+    
+	#pragma omp parallel for private(i,x)
+    for (i = 1; i <= n; i++)
+	{
 		x = h * ((double)i - 0.5);
-		sum += f(x);
+		x_array[i] = f(x);
 	}
-	
-	return h * sum;   
+
+	for (i = 1; i <= n; i++)
+	{
+		sum += x_array[i];
+	}
+
+	return h * sum;
 }
 
 /*
@@ -130,22 +142,22 @@ double Parallel_Integration3(int n)
 ** the function 'integr', returns the runtime and prints the
 ** obtained speedup, if applicable.
 */
-std::chrono::nanoseconds execute(double (*integr)(int), int n, std::chrono::nanoseconds t_s) 
+std::chrono::nanoseconds execute(double (*integr)(int), int n, std::chrono::nanoseconds t_s)
 {
 	double res;
 	int nthreads;
 
 	auto t1 = std::chrono::high_resolution_clock::now();
-	res = integr(n);     
+	res = integr(n);
 	auto t_p = std::chrono::high_resolution_clock::now() - t1;
-	
-    
+
 	std::cout << "  n: " << n << ", integral is approximatly: " << std::setprecision(17) << res << std::endl
-		 << "  Error is: " << fabs(res-PI) << ", Runtime[ms]: " << std::setprecision(6) << t_p/std::chrono::milliseconds(1) << std::endl;
-	if (t_s > std::chrono::nanoseconds(0)) {
+			  << "  Error is: " << fabs(res - PI) << ", Runtime[ms]: " << std::setprecision(6) << t_p / std::chrono::milliseconds(1) << std::endl;
+	if (t_s > std::chrono::nanoseconds(0))
+	{
 		nthreads = omp_get_max_threads();
 		std::cout << "  Nthreads: " << nthreads
-			 << "  Speedup: " << std::setprecision(3) << ((double)t_s.count()/t_p.count()) << std::endl;
+				  << "  Speedup: " << std::setprecision(3) << ((double)t_s.count() / t_p.count()) << std::endl;
 	}
 	std::cout << std::endl;
 
@@ -154,10 +166,10 @@ std::chrono::nanoseconds execute(double (*integr)(int), int n, std::chrono::nano
 
 int main(int argc, char *argv[])
 {
-	int n=0;
-	
-  
-	for (;;) {
+	int n = 0;
+
+	for (;;)
+	{
 		std::cout << "Enter the number of intervals: (0=exit) " << std::endl;
 		std::cin >> n;
 		if (n <= 0)
@@ -165,24 +177,24 @@ int main(int argc, char *argv[])
 
 		/* warm-up ... */
 		Serial_Integration(n);
-		
+
 		/* serial solution */
-		std::cout << "Serial solution:" << std::endl;;
+		std::cout << "Serial solution:" << std::endl;
+		;
 		auto t_s = execute(Serial_Integration, n, std::chrono::nanoseconds(0));
-    
+
 		/* parallel solution 1 */
 		std::cout << "Parallel solution 1:" << std::endl;
 		execute(Parallel_Integration1, n, t_s);
-    
+
 		/* parallel solution 2 */
 		std::cout << "Parallel solution 2:" << std::endl;
 		execute(Parallel_Integration2, n, t_s);
-    
+
 		/* parallel solution 3 */
 		std::cout << "Parallel solution 3:" << std::endl;
 		execute(Parallel_Integration3, n, t_s);
 	}
-    
+
 	return 0;
 }
-

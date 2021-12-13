@@ -14,32 +14,23 @@ using namespace std;
 
 int main()
 {  
-    int N=50000;
-    int i;
-    double a[N], b[N], c[N];
-
-    cout<<"Hello JI : ";
-    auto start = std::chrono::high_resolution_clock::now();
-    //#pragma omp parallel for 
-    for (i = 0; i < N; i++)
+    int N=10;
+    int x=768;
+    double complex;
+    int i=5;
+    int count=0;
+    omp_set_num_threads(3);
+ 
+    #pragma omp parallel for reduction(+: count)
+    for (i=0; i <N; i++)
     {  
-       a[i]= b[i]+ c[i];
+       count+=1;
+       complex = (0.0000054 * 0.99999)+90.3333;
+       x=888;
+
+
+       cout<<"Thread :"<<omp_get_thread_num()<<" i: "<<i<<" X:"<<x<<endl;
     }
-    auto end = std::chrono::high_resolution_clock::now();
-    cout << "Time: " << (end - start) / std::chrono::milliseconds(1) << "ms" << endl;
-
-
-  /*
-    cout<<"Sequential"<<endl;
-    auto start1 = std::chrono::high_resolution_clock::now();
-    for (i = 0; i < 50000; i++)
-    {  
-       int m =rand();
-       sarr[i]= i*2.5 + m - 3456;
-    }
-    auto end1 = std::chrono::high_resolution_clock::now();
-    cout << "Time: " << (end1 - start1) / std::chrono::milliseconds(1) << "ms" << endl;
-  */
-
+    cout<<"count is :"<<count;
     return 0;
 }
