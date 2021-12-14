@@ -23,7 +23,7 @@ extern void Delete_Matrix(double **matrix);
 /* Gauss/Seidel relaxation *********************************************** */
 
 /*
-** Execute Gauß/Seidel relaxation on the n*n matrix 'a'.
+** Execute Gauï¿½/Seidel relaxation on the n*n matrix 'a'.
 */
 int solver(double **a, int n)
 {
@@ -32,17 +32,23 @@ int solver(double **a, int n)
 	** achieve the required accuracy.
 	*/
 	int kmax = (int)(0.35 / eps);
-	int i,j;
+	int i, j, ij;
 	int k;          /* Counts iterations */
 
 	/*
 	** Iterate 'k' times.
 	*/
+
 	for (k=0; k<kmax; k++) {
-		for (i=1; i<n-1; i++) {
-			for (j=1; j<n-1; j++) {
-				a[i][j] = 0.25 * (a[i][j-1] + a[i-1][j] +
-								  a[i+1][j] + a[i][j+1]);
+		#pragma omp parallel for private(i,j,ij)
+		for (ij = 1; ij < 2 * n - 4; ij++)
+		{
+			int ja = (ij <= n - 2) ? 1 : ij - (n - 3);
+			int je = (ij <= n - 2) ? ij : n - 2;
+			for (j = ja; j <= je; j++)
+			{
+				i = ij - j + 1;
+				a[i][j] = 0.25 * (a[i][j - 1] + a[i - 1][j] + a[i + 1][j] + a[i][j + 1]);
 			}
 		}
 	}

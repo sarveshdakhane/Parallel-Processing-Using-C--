@@ -46,7 +46,7 @@ int solver(double **a, int n)
 	*/
 	do {
 		diff = 0;
-
+        #pragma omp parallel for private(i, j, h)
 		for (i=1; i<n-1; i++) {
 			for (j=1; j<n-1; j++) {
 				b[i][j] = 0.25 * (a[i][j-1] + a[i-1][j]
@@ -55,6 +55,7 @@ int solver(double **a, int n)
 				/* Determine the maximum change of the matrix elements */
 				h = fabs(a[i][j] - b[i][j]);
 				if (h > diff)
+				    #pragma omp critical
 					diff = h;
 			}
 		}
@@ -62,6 +63,7 @@ int solver(double **a, int n)
 		/*
 		** Copy intermediate result into matrix 'a'
 		*/
+	    #pragma omp parallel for private(i,j)
 		for (i=1; i<n-1; i++) {
 			for (j=1; j<n-1; j++) {
 				a[i][j] = b[i][j];
