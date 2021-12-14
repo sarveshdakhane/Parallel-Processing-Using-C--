@@ -19,12 +19,12 @@ int main()
     double complex;
     int i=5;
     int count=0;
-    omp_set_num_threads(3);
+    omp_set_num_threads(2);
  
-    #pragma omp parallel for reduction(+: count)
+    #pragma omp parallel for schedule(static,6)   //reduction(+: count)
     for (i=0; i <N; i++)
     {  
-       count+=1;
+       //count+=1;
        complex = (0.0000054 * 0.99999)+90.3333;
        x=888;
 
