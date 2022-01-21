@@ -97,7 +97,6 @@ static void doBreadthFirstSearch(Config *conf)
 		std::cerr << "depth " << depth << ": " << length << std::endl
 				  << std::flush;
 // Consider all configurations of depth 'depth-1'.
-
 	uint64_t newBox;
 #pragma omp parallel for private(lastBox,newBox)
 		for (uint64_t i = 0; i < length; i++)
@@ -125,13 +124,13 @@ static void doBreadthFirstSearch(Config *conf)
 						{
 							// If we found a solution: print it and terminate the search
 							if (Config::isSolutionConf(c))
-							{
-								Flag_SoluFound = true;
+							{								
 								uint64_t len;
 								uint64_t *path = queue->getPath(c, i, &len);
 								printPath(path, len);
 								delete[] path;
 								queue->statistics();
+								Flag_SoluFound = true;
 								//return;
 							}
 						}
@@ -200,6 +199,7 @@ static void recDepthFirstSearch(Config *conf, uint64_t lastBox,
 	}
 
 	// Consider all boxes, starting with the box that was moved last
+	bool Flag_ConfigAdded = false;
 	uint64_t nBoxes = Config::numBoxes();
 	for (uint64_t b = 0; b < nBoxes; b++)
 	{
@@ -217,14 +217,13 @@ static void recDepthFirstSearch(Config *conf, uint64_t lastBox,
 			// the new depth for this configuration.
 			if (c != Config::NONE)
 			{
-				// Recursively continue the search on a copy of the configuration
-				bool Flag_ConfigAdded = false;
+				// Recursively continue the search on a copy of the configuration		
 #pragma omp critical
 				Flag_ConfigAdded = map->lookup_and_set(c, depth + 1);
 				if (Flag_ConfigAdded)
 				{
 					DFSStack *NewStack = new DFSStack(*stack);
-#pragma omp task shared(map)
+                    #pragma omp task shared(map)
 					{
 						
 						Config next(c);
@@ -248,7 +247,7 @@ static void doDepthFirstSearch(Config *conf, uint64_t maxDepth)
 	DFSDepthMap map(Config::getNumConfigs(), maxDepth);
 	map.lookup_and_set(conf->getConfig(), 1);
 	path_len = maxDepth;
-	
+
 	#pragma omp parallel
 	#pragma omp single nowait
 	recDepthFirstSearch(conf, 0, &stack, &map);
