@@ -98,7 +98,7 @@ static void doBreadthFirstSearch(Config *conf)
 				  << std::flush;
 // Consider all configurations of depth 'depth-1'.
 	uint64_t newBox;
-#pragma omp parallel for private(lastBox,newBox)
+ #pragma omp parallel for shared(Flag_SoluFound) private(lastBox,newBox)
 		for (uint64_t i = 0; i < length; i++)
 		{
 			// Read the configuration from the queue
@@ -108,7 +108,7 @@ static void doBreadthFirstSearch(Config *conf)
 			{
 				uint64_t box = (b + lastBox) % nBoxes;
 				// Consider all directions of movement
-				for (uint64_t dir = 0; dir < 4 && !Flag_SoluFound; dir++)
+				for (uint64_t dir = 0; dir < 4; dir++)
 				{
 					// Determine the configuration that results from moving box
 					// 'box' in direction 'dir'.
@@ -138,6 +138,8 @@ static void doBreadthFirstSearch(Config *conf)
 				}
 			}
 		}
+
+		if(Flag_SoluFound){return;}
 
 		// Advance the queue for the next tree depth
 		depth++;

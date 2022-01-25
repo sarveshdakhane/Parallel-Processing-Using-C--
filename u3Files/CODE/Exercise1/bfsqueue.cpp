@@ -104,6 +104,13 @@ bool BFSQueue::lookup_and_add(uint64_t conf, uint64_t predIndex, uint64_t box)
 	uint64_t i2 = bsIndex2(conf);
 	
 	// If necessary, allocate an array at the second level and initialize it with 0
+	if (bitset[i1] == NULL){
+		uint64_t* newBlock = new uint64_t[BLOCKSIZE]();
+	   if(!__sync_val_compare_and_swap(&bitset[i1],NULL , newBlock))
+	   {
+		   delete[] newBlock;
+	   };
+	}
 	if (bitset[i1] == NULL)
 		bitset[i1] = new uint64_t[BLOCKSIZE]();
 
