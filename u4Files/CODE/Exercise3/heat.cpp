@@ -17,9 +17,10 @@
 #include <stdlib.h>
 #include <math.h>
 #include <sys/time.h>
+#include <mpi.h>
 
 using namespace std;
-
+int nprocs, myrank;
 
 /*
 ** The iterative computation terminates, if each element has changed
@@ -130,13 +131,16 @@ void Write_Matrix(double **a, int n)
 
 /* *********************************************************************** */
 
-int
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
 	int i, j;
 	int n;
 	double **a;
 	double start, end;
+
+	MPI_Init( &argc, &argv );
+    MPI_Comm_rank( MPI_COMM_WORLD, &myrank );
+    MPI_Comm_size( MPI_COMM_WORLD, &nprocs );
 
 	if ((argc < 2) || (argc > 3)) {
 		cerr << "Usage: heat <size> [<epsilon>] !\n\n"

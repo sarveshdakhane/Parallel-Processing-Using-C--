@@ -1,11 +1,11 @@
-# Entfernenn Sie das '#' in der nächsten Zeile, um Compileroptimierungen
+# Entfernenn Sie das '#' in der nï¿½chsten Zeile, um Compileroptimierungen
 # einzuschalten.
 #OPT = -O
 
 all: heat ViewMatrix.class
 
 heat: heat.cpp solver-jacobi.cpp
-	g++ $(OPT) -fopenmp -o heat heat.cpp solver-jacobi.cpp
+	mpic++ $(OPT) -fopenmp -o heat heat.cpp solver-jacobi.cpp
 
 ViewMatrix.class: ViewMatrix.java
 	javac ViewMatrix.java

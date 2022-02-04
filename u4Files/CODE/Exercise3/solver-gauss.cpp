@@ -7,7 +7,7 @@
 
 #include <stdlib.h>
 #include <math.h>
-
+#include <mpi.h>
 /*
 ** The iterative computation terminates, if the accuracy is at least 'eps'.
 */
@@ -23,10 +23,13 @@ extern void Delete_Matrix(double **matrix);
 /* Gauss/Seidel relaxation *********************************************** */
 
 /*
-** Execute Gauß/Seidel relaxation on the n*n matrix 'a'.
+** Execute Gauï¿½/Seidel relaxation on the n*n matrix 'a'.
 */
 int solver(double **a, int n)
-{
+{   int nprocs, myrank;
+	MPI_Status status;
+	MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+	MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
 	/*
 	** Simple estimation for the number of iterations, which is needed to
 	** achieve the required accuracy.
@@ -45,7 +48,9 @@ int solver(double **a, int n)
 								  a[i+1][j] + a[i][j+1]);
 			}
 		}
+		MPI_Send(&a[i][j], n, MPI_DOUBLE, myrank-1, 1, MPI_COMM_WORLD);
 	}
+	
 	return kmax;
 }
 

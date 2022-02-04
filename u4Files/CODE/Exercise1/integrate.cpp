@@ -67,12 +67,12 @@ double Parallel_Integration(int n)
 
 	h = 1.0 / (double)n;
 	sum = 0.0;
-
+	
 	for (i = 1; i <= n; i++) {
 		x = h * ((double)i - 0.5);
 		sum += f(x);
 	}
-
+    
 	return h * sum;
 }
 
@@ -82,6 +82,7 @@ int main(int argc, char* argv[])
 	double res;
 	int namelen;
 	char name[MPI_MAX_PROCESSOR_NAME];
+    double Rec_data;
 
 	/* Initialize MPI and set arguments */
 	MPI_Init(&argc, &argv);
@@ -121,11 +122,13 @@ int main(int argc, char* argv[])
 			// parallel solution
 			std::cout << "Parallel solution:" << std::endl;
 			t1 = std::chrono::high_resolution_clock::now();
+			MPI_Bcast(&n, 1, MPI_INT, 0, MPI_COMM_WORLD);
 			res = Parallel_Integration(n);
+			MPI_Reduce(&res, &Rec_data, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 			std::chrono::duration<double> t_p = std::chrono::high_resolution_clock::now() - t1;
 
 			std::cout << "  n: " << n << ", integral is approximatly: " << std::setprecision(17) << res << std::endl
-				<< "  Error is: " << fabs(res - PI) << ", Runtime[sec]: " << std::setprecision(6) << t_p / std::chrono::seconds(1) << std::endl;
+				<< "  Error is: " << fabs(Rec_data - PI) << ", Runtime[sec]: " << std::setprecision(6) << t_p / std::chrono::seconds(1) << std::endl;
 			std::cout << "  Nprocs: " << nprocs
 				<< "  Speedup: " << std::setprecision(3)
 				<< ((t_p > std::chrono::nanoseconds(0)) ? t_s / t_p : 0.0) << std::endl;

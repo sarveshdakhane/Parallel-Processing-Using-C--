@@ -8,6 +8,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <math.h>
+#include <mpi.h>
 
 using namespace std;
 
@@ -37,6 +38,13 @@ int solver(double **a, int n)
 	double diff;    /* Maximum change since the last iteration */
 	int k = 0;      /* Counts iterations (for statistics only ...) */
 	double **b = New_Matrix(n,n);  /* Auxiliary matrix for result */
+    int nprocs, myrank;
+    MPI_Status status;
+	
+
+	MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+	MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+
 
 	if (b == NULL) {
 		cerr << "Jacobi: Can't allocate matrix\n";
@@ -49,7 +57,6 @@ int solver(double **a, int n)
 	*/
 	do {
 		diff = 0;
-
 		for (i=1; i<n-1; i++) {
 			for (j=1; j<n-1; j++) {
 				b[i][j] = 0.25 * (a[i][j-1] + a[i-1][j]
@@ -72,6 +79,32 @@ int solver(double **a, int n)
 		}
 
 		k++;
+
+ 
+		if (myrank != 0)
+		{
+          MPI_Recv(a[0], n, MPI_DOUBLE, myrank-1, 0, MPI_COMM_WORLD, &status);
+		}
+
+		if (myrank != nprocs-1)
+		{
+          MPI_Send(a[n-2], n, MPI_DOUBLE, myrank+1, 0, MPI_COMM_WORLD);
+		}
+			
+        if (myrank != nprocs-1)
+		{
+		   MPI_Recv(a[n-1], n, MPI_DOUBLE, myrank+1, 1, MPI_COMM_WORLD, &status);
+		}
+		if (myrank != 0)
+		{
+			MPI_Send(a[1], n, MPI_DOUBLE, myrank-1, 1, MPI_COMM_WORLD);
+		}
+
+		
+		
+		MPI_Allreduce(&diff, &diff, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+
+
 	} while (diff > eps);
 	
 	Delete_Matrix(b);

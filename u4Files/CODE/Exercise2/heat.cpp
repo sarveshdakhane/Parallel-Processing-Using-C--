@@ -17,10 +17,12 @@
 #include <stdlib.h>
 #include <math.h>
 #include <sys/time.h>
+#include <mpi.h>
+
 
 using namespace std;
 
-
+int nprocs, myrank;
 /*
 ** The iterative computation terminates, if each element has changed
 ** by at most 'eps', as compared to the last iteration.
@@ -128,15 +130,29 @@ void Write_Matrix(double **a, int n)
 	file.close();
 }
 
+int size(int n, int p) {
+	return ((n + p) / nprocs);
+}
+
 /* *********************************************************************** */
 
-int
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
 	int i, j;
-	int n;
-	double **a;
+	int n , m;
+	double **a , **b;
 	double start, end;
+    int nam_len;
+    MPI_Status status;
+	char Pro_Name[MPI_MAX_PROCESSOR_NAME];
+	
+
+    MPI_Init( &argc, &argv );
+    MPI_Comm_rank( MPI_COMM_WORLD, &myrank );
+    MPI_Comm_size( MPI_COMM_WORLD, &nprocs );
+	/* Determine node name */
+	MPI_Get_processor_name(Pro_Name, &nam_len);
+
 
 	if ((argc < 2) || (argc > 3)) {
 		cerr << "Usage: heat <size> [<epsilon>] !\n\n"
@@ -151,6 +167,7 @@ main(int argc, char **argv)
 	n = atoi(argv[1]);
 	if ((n < 3) || (n > 6000)) {
 		cerr << "Error: size out of range [3 .. 6000] !\n";
+		MPI_Abort(MPI_COMM_WORLD, 0);
 		exit(1);
 	}
 
@@ -164,6 +181,7 @@ main(int argc, char **argv)
 		cerr <<	"Error: epsilon must be > 0! "
 			 <<	"(try values between 0.01 and 0.0000000001)\n";
 		exit(1);
+		MPI_Abort(MPI_COMM_WORLD, 0);
 	}
 
 	/*
@@ -172,6 +190,7 @@ main(int argc, char **argv)
 	a = New_Matrix(n, n);
 	if (a == NULL) {
 		cerr << "Can't allocate matrix !\n";
+		MPI_Abort(MPI_COMM_WORLD, 0);
 		exit(1);
 	}
 		
@@ -190,14 +209,22 @@ main(int argc, char **argv)
 	** the lower left and the upper right corner are hot (value 1),
 	** between the corners, the temperature is changing linearly.
 	*/
-	for (i=0; i<n; i++) {
+
+    int temp= n/nam_len;
+
+  for (int k=0 ; k<temp ; k++)
+  {
+	for (i=0; i<temp; i++) {
 		double x = (double)i / (n-1);
 		a[i][0]       = x;
 		a[n-1-i][n-1] = x;
 		a[0][i]       = x;
 		a[n-1][n-1-i] = x;
 	}
-
+	MPI_Send(a[i], size(n, k) * n, MPI_DOUBLE, k, 0, MPI_COMM_WORLD);
+  }
+   
+    
 	/*
 	** Call the iterative solver on matrix 'a'
 	*/

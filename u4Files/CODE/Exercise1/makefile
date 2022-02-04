@@ -1,8 +1,8 @@
-# Entfernenn Sie das '#' in der nächsten Zeile, um Compileroptimierungen
+# Entfernenn Sie das '#' in der nï¿½chsten Zeile, um Compileroptimierungen
 # einzuschalten.
 #OPT = -O
 
-# Zahl der Knoten und Prozesse für den HorUS-Cluster
+# Zahl der Knoten und Prozesse fï¿½r den HorUS-Cluster
 NODES = 1
 PROCS = 4
 
@@ -15,6 +15,6 @@ clean:
 	rm -f *.o *.c~ integrate
  
 run:
-	srun --exclusive --partition short --mpi=pmi2 \
+	srun  --exclusive --partition short --mpi=pmi2 \
 	     --nodes=$(NODES) --ntasks=$(PROCS) $(PWD)/integrate
 
